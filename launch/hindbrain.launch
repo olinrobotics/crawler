@@ -1,0 +1,11 @@
+<launch>
+  <arg name='port' default='/dev/ttyACM0'/>
+
+  <include file="$(find gravl)/launch/teleop.launch"/>
+  <include file="$(find gravl)/launch/mainstate.launch"/>
+
+  <node pkg="crawler" type="HindBrain.py" name="hind_brain" output="screen">
+    <param name="port" value="$(arg port)" />
+  </node>
+
+</launch>
