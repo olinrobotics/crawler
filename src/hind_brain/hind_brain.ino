@@ -1,11 +1,17 @@
+/**
+  hind_brain.ino
+  Purpose: Arduino Uno hindbrain firmware for Koda
+
+  @author Connor Novak
+  @email olingravl@gmail.com
+  @version 0.0.1 19/02/24
+*/
+
 #include "hind_brain.h"
 
 // Servos
 Servo steerServo;
 Servo velServo;
-
-// Pins
-
 
 // Global Variables
 int velCmd = VEL_CMD_STOP;
@@ -13,6 +19,7 @@ int steerCmd = STEER_CMD_CENTER;
 int incomingByte = 0;
 unsigned long watchdogTimer;
 unsigned long ledTimer;
+unsigned long buttonTimer;
 
 // States
 boolean isEStopped = false;
@@ -20,15 +27,21 @@ boolean isLEDOn = false;
 
 void setup() {
 
+  // Wait for serial connection
   Serial.begin(BAUD_RATE);
   while (!Serial){;}
 
+  // Setup pins
   steerServo.attach(STEER_SERVO_PIN);
   velServo.attach(VEL_SERVO_PIN);
   pinMode(ESTOP_LED_PIN, OUTPUT);
+  pinMode(ESTOP_BUTTON_PIN, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(ESTOP_BUTTON_PIN), onEStopPress, RISING);
 
+  // Initialize timers
   watchdogTimer = millis();
   ledTimer = millis();
+  buttonTimer = millis();
 }
 
 void loop() {
@@ -115,20 +128,15 @@ void updateLED() {
   if (isEStopped) {
     digitalWrite(ESTOP_LED_PIN, HIGH);
     isLEDOn = true;
-    ledTimer = millis();
   } else {
     if (millis() - ledTimer > LED_BLINK_DELAY) {
 
       // Switch state
-      if (isLEDOn) {
-        digitalWrite(ESTOP_LED_PIN, LOW);
-        isLEDOn = false;
-      } else {
-        digitalWrite(ESTOP_LED_PIN, HIGH);
-        isLEDOn = true;
-      }
+      if (isLEDOn) {digitalWrite(ESTOP_LED_PIN, LOW);}
+      else {digitalWrite(ESTOP_LED_PIN, HIGH);}
 
-      ledTimer = millis();  // Reset timer
+      isLEDOn = !isLEDOn;
+      ledTimer = millis();
     }
   }
 }
@@ -151,4 +159,14 @@ float mapPrecise(float x, float inMin, float inMax, float outMin, float outMax) 
   // Emulates Arduino map() function, but uses floats for precision
   return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
 
+}
+
+void onEStopPress() {
+  // Toggles estopped state after debouncing
+  if (millis() - buttonTimer >= DEBOUNCE_DELAY) {
+    isEStopped = !isEStopped;
+    if(isEStopped) { eStop();}
+    else {eStart();}
+    buttonTimer = millis();
+  }
 }
