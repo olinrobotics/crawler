@@ -1,4 +1,4 @@
-# indoor_localization
+# crawler
 **A Codebase for the Koda GRAVL Mini-platform**
 
 This package contains software and firmware specific to koda, GRAVL's miniature
@@ -28,12 +28,13 @@ via USB in order to send commands, as the ROScore is run offboard of the Arduino
 * The port argument represents which port the Arduino is plugged into. To determine the port, check the Arduino IDE, or run the command `ls /dev/ttyACM*`
 * The default for the port argument is `/dev/ttyACM0`
 
-5. If Koda is E-stopped (LED is solid ON), press the EStop button or reset the Arduino onboard.
+5. Turn on Koda's main power using the power switch.
+
+* If Koda is E-stopped (LED is solid ON), press the EStop button or reset the Arduino onboard.
 
 6. Press the 'A' button on the XBox controller to activate the controls.
 
 ### Authors
 
-This package was built by Connor Novak (20'), Nathan Estill (21'), and Kawin Nikomborirak for
-the Ground Robotic Autonomous Vehicle Laboratory
+This package was built by Connor Novak (20'), Nathan Estill (21'), and Kawin Nikomborirak (21') for the Ground Robotic Autonomous Vehicle Laboratory
 ([link](https://github.com/olinrobotics/gravl/wiki)).
