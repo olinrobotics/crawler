@@ -1,7 +1,7 @@
 <launch>
-  <arg name='port' default='/dev/ttyACM0'/>
+  <arg name='port' default='/dev/ttyUSB0'/>
 
-  <include file="$(find gravl)/launch/teleop.launch"/>
+  <include file="$(find crawler)/launch/teleop.launch"/>
   <include file="$(find crawler)/launch/mainstate.launch"/>
 
   <node pkg="crawler" type="HindBrain.py" name="hind_brain" output="screen">
