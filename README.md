@@ -12,10 +12,9 @@ _Image 1: Koda, Iteration 0_
 
 ### How to Run Koda
 
-Currently, Koda is a tethered platform. The Arduino must be connected to a computer
-via USB in order to send commands, as the ROScore is run offboard of the Arduino.
+Currently, Koda has no onboard computer. The onboard microprocessor must be connected to a computer via XBee in order to send commands, as the ROScore is run offboard of the Arduino.
 
-1. Connect a USB cable between Koda and a laptop with ROS and the `crawler` repository set up.
+1. Connect an XBee radio USB breakout board to a laptop with ROS and the `crawler` repository set up.
 
 2. In a new terminal, launch a new roscore with the command `roscore`
 
@@ -23,10 +22,10 @@ via USB in order to send commands, as the ROScore is run offboard of the Arduino
 
 3. Plug in an XBox controller, or another controller compatible with the Teleop node.
 
-4.  In a new terminal, run the basic nodes required for teleoperating Koda with the command `roslaunch crawler bringup_minimal.launch port:=/dev/ttyACM0`
+4.  In a new terminal, run the basic nodes required for teleoperating Koda with the command `roslaunch crawler bringup_minimal.launch port:=/dev/ttyUSB0`
 
-* The port argument represents which port the Arduino is plugged into. To determine the port, check the Arduino IDE, or run the command `ls /dev/ttyACM*`
-* The default for the port argument is `/dev/ttyACM0`
+* The port argument represents which port the Arduino is plugged into. To determine the port, check the Arduino IDE, or run the command `ls /dev/ttyUSB*`
+* The default for the port argument is `/dev/ttyUSB0`
 
 5. Turn on Koda's main power using the power switch.
 
