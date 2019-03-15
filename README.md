@@ -10,6 +10,9 @@ _Image 1: Koda, Iteration 0_
 
 ## documentation
 
+### Setup/Installation
++ Dependencies: https://github.com/olinrobotics/state_controller.git
+
 ### How to Run Koda
 
 Currently, Koda has no onboard computer. The onboard microprocessor must be connected to a computer via XBee in order to send commands, as the ROScore is run offboard of the Arduino.
