@@ -37,6 +37,8 @@
   <exec_depend>ackermann_msgs</exec_depend>
   <exec_depend>gravl</exec_depend>
   <exec_depend>rospy</exec_depend>
+  <exec_depend>image_proc</exec_depend>
+  <exec_depend>raspicam_node</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

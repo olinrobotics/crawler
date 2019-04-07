@@ -3,4 +3,6 @@
   <node pkg="laser_assembler" type="laser_scan_assembler" name="laser_assembler">
     <param name="~fixed_frame" value="odom"/>
   </node>
+
+  <include file="$(find crawler)/launch/skycam.launch">
 </launch>
