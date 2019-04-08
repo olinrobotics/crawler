@@ -46,7 +46,7 @@ void setup() {
 
 void loop() {
 
-  checkSerial();
+  checkWatchdog();
 
   if (Serial.available() > 0) {
     readAckMsg(&velCmd, &steerCmd);
@@ -59,7 +59,7 @@ void loop() {
 
 }
 
-void checkSerial() {
+void checkWatchdog() {
   // estops if watchdog has timed out
 
   if(millis() - watchdogTimer >= WATCHDOG_TIMEOUT) {
@@ -103,13 +103,22 @@ int velAckToCmd(float ack_vel){
   return ack_vel;
 }
 
+bool isCommand() {
+// Returns true if message is CMD, false if QUE
+auto msg = Serial.read();
+if (msg == '!') return true;
+else if (msg == '?') return false;
+}
+
+
+
 void readAckMsg(int *vel, int *steer){
   // Reads Serial port, returns msg attributes
 
-  if (Serial.read() != '[') {return;} // Checks for message start char
+  if (Serial.read() != '[') return; // Checks for message start char
 
-  *vel = velAckToCmd(Serial.readStringUntil('|').toFloat());
-  *steer = steerAckToCmd(Serial.readStringUntil(']').toFloat());
+  *vel = velAckToCmd(Serial.readStringUntil(':').toFloat());
+  *steer = steerAckToCmd(Serial.readStringUntil('\n').toFloat());
 
   while(Serial.available()) {Serial.read();} // clears out extra chars
 }
