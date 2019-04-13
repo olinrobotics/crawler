@@ -9,7 +9,7 @@ project(crawler)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   ackermann_msgs
-  gravl
+  state_controller
   rospy
   roscpp
 )
