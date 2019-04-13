@@ -11,7 +11,7 @@
 
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
-#include <gravl/TwistLabeled.h>
+#include <state_controller/TwistLabeled.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/UInt8.h>
 #include <string.h>
@@ -29,7 +29,7 @@ private:
   std_msgs::Bool stop_msg;
   std_msgs::Bool activate_msg;
   std_msgs::UInt8 state_msg;
-  gravl::TwistLabeled drive_msg;
+  state_controller::TwistLabeled drive_msg;
 
   void joyCB(const sensor_msgs::Joy::ConstPtr &joy);
   void softestop(bool stop);

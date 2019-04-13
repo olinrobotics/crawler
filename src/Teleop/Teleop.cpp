@@ -34,7 +34,7 @@ Teleop::Teleop()
 : n("~")
 , joystick_sub(n.subscribe("/joy", 10, &Teleop::joyCB, this))
 , activate_pub(n.advertise<std_msgs::Bool>("/state_controller/cmd_activate", 1))
-, drivemsg_pub(n.advertise<gravl::TwistLabeled>("/state_controller/cmd_behavior", 1))
+, drivemsg_pub(n.advertise<state_controller::TwistLabeled>("/state_controller/cmd_behavior", 1))
 , softestop_pub(n.advertise<std_msgs::Bool>("/softestop", 1))
 , state_pub(n.advertise<std_msgs::UInt8>("/state_controller/cmd_state", 1))
 , estop(false)
@@ -46,7 +46,7 @@ Teleop::Teleop()
 , activateButtonFlag(false)
 , behaviorAxisFlag(false)
 {
-  drive_msg.label = 1; // TODO(connor@students): Actually get label
+  // drive_msg.label = 1; // TODO(connor@students): Actually get label
   n.param<std::string>("controllerType", controllerType, "gamepad");
   if (controllerType == "gamepad"){
     activateButton = 0;
