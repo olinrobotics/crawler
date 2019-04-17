@@ -1,6 +1,5 @@
 <launch>
   <include file="$(find crawler)/launch/skycam.launch"/>
   <include file="$(find crawler)/launch/skycam_localization.launch"/>
-  <include file="$(find crawler)/launch/skycam_localization.launch"/>
   <include file="${find phidgets_imu}/launch/imu.launch"/>
 </launch>
