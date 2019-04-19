@@ -1,0 +1,10 @@
+<launch>
+  <node pkg="image_proc" type="image_proc" name="skycam" ns="/raspicam_node">
+    <remap to="image" from="image_raw"/> <param name="~queue_size" value="30"/>
+  </node>
+
+  <!-- <include file="$(find crawler)/launch/skycam_localization.launch"/> -->
+  <!-- <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true"> -->
+  <!--   <rosparam command="load" file="$(find crawler)/config/ekfparams.yaml" /> -->
+  <!-- </node> -->
+</launch>
