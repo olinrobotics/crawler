@@ -14,12 +14,13 @@ Servo steerServo;
 Servo velServo;
 
 // Global Variables
-int velCmd = VEL_CMD_STOP;
+int velCmd   = VEL_CMD_STOP;
 int steerCmd = STEER_CMD_CENTER;
 int incomingByte = 0;
 unsigned long watchdogTimer;
 unsigned long ledTimer;
 unsigned long buttonTimer;
+char serial_buffer[10];          // Buffer from serial
 
 // States
 boolean isEStopped = false;
@@ -45,19 +46,22 @@ void setup() {
 }
 
 void loop() {
-
-  checkWatchdog();
-
-  if (Serial.available() > 0) {
-    readAckMsg(&velCmd, &steerCmd);
-    watchdogTimer = millis();
-  }
-
-  updateLED();
-
-  if (!isEStopped) {updateState(velCmd, steerCmd);}
-
+  parseSerialMsg();
 }
+// void loop() {
+//
+//   checkWatchdog();
+//
+//   if (Serial.available() > 0) {
+//     readAckMsg(&velCmd, &steerCmd);
+//     watchdogTimer = millis();
+//   }
+//
+//   updateLED();
+//
+//   if (!isEStopped) {updateState(velCmd, steerCmd);}
+//
+// }
 
 void checkWatchdog() {
   // estops if watchdog has timed out
@@ -69,7 +73,7 @@ void checkWatchdog() {
   }
 }
 
-int steerAckToCmd(float ack_steer){
+int steerAckToCmd(int ack_steer){
   //  Given ackermann steering message, returns corresponding ESC command
 
   // Convert from input message to output command
@@ -88,7 +92,17 @@ int steerAckToCmd(float ack_steer){
   return ack_steer;
 }
 
-int velAckToCmd(float ack_vel){
+int steerCmdToAck(int cmd_steer) {
+  // Given ackermann ESC command, return coresponding msg
+  return map(cmd_steer, STEER_CMD_LEFT, STEER_CMD_RIGHT, STEER_MSG_LEFT, STEER_MSG_RIGHT);
+}
+
+int velCmdToAck(int cmd_vel) {
+  // Given steering ESC command, return corresponding msg
+  return map(cmd_vel, VEL_CMD_MIN, VEL_CMD_MAX, VEL_MSG_MIN, VEL_MSG_MAX);
+}
+
+int velAckToCmd(int ack_vel){
   // given ackermann velocity, returns corresponding ESC command
 
   // Convert from range of input signal to range of output signal
@@ -110,7 +124,58 @@ if (msg == '!') return true;
 else if (msg == '?') return false;
 }
 
+int parseSerialMsg() {
+  serial_buffer[0] = '\0';
+  Serial.readBytesUntil('\n', serial_buffer, 10);
 
+  if (serial_buffer[0] != '\0') {
+    const char* info = strtok(serial_buffer, ":"); // Remove info part of msg from strtok
+    switch(serial_buffer[0]) {    // Check 1st char for command type
+      case '?': // Query cmd
+        String message = "~";
+        switch(serial_buffer[1]) {  // Check 2nd char for msg type
+            case 'a': case 'A': // Ackermann msg
+              message += String("a:");
+              message += String(steerCmdToAck(steerCmd));
+              message += ":";
+              message += String(velCmdToAck(velCmd));
+              break;
+            case 'e': case 'E': // Estop msg
+              message += String("e:");
+              message += String(isEStopped);
+        } // TODO ERROR WHERE SECOND SWITCH CASE IS NOT LETTING COMMAND THROUGH
+        // char result[message.length()];
+        // message.toCharArray(result, message.length()+3);
+        // Serial.write(result, sizeof(result));
+        // Serial.write("\n");
+        Serial.flush();
+        break;
+      case '!': // Command cmd
+        Serial.println("Hello");
+        break;
+      default:
+        Serial.println("Default");
+        // switch(serial_buffer[1]) {
+        //   case 'a': case 'A': // Ackermann msg
+        //     const char* s_char = strtok(NULL, ":"); // Read steer
+        //     const char* v_char = strtok(NULL, "\n");// Read vel
+        //     velCmd = velAckToCmd(atoi(v_char));
+        //     steerCmd = steerAckToCmd(atoi(s_char));
+        //     break;
+        //   case 'e': case 'E': // Estop msg
+        //     const char* e_char = strtok(NULL, "\n");  // Read only val
+        //     Serial.println(e_char);
+        //     if(atoi(e_char)) eStop();
+        //     else eStart();
+        //     break;
+        //   case 'w': case 'W': // Watchdog msg
+        //   watchdogTimer = millis();
+        // }
+    }
+    Serial.println("end");
+    return 1;
+  } else return 0;
+}
 
 void readAckMsg(int *vel, int *steer){
   // Reads Serial port, returns msg attributes
@@ -154,6 +219,7 @@ void eStop() {
   // Estops vehicle
 
   isEStopped = true;
+  Serial.println(isEStopped);
   velCmd = VEL_CMD_STOP;
   updateState(velCmd, steerCmd);
 }
