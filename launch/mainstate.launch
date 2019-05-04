@@ -1,0 +1,7 @@
+<launch>
+
+<rosparam command="load" file="$(find crawler)/config/crawler_behaviors.yaml" />
+<node pkg="midbrain_sc" type="MainState" name="mainstate" output="screen"/>
+<node name="convert_to_ackermann" pkg="crawler" type="ConvertToAckermann.py"/>
+
+</launch>

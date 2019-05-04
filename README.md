@@ -4,11 +4,14 @@
 This package contains software and firmware specific to koda, GRAVL's miniature
 prototyping ground vehicle
 
-<img src="" width=300/>
+<img src="https://lh3.googleusercontent.com/Jx1OQg4AAH1TizGKpdFJIWJzOM1vo685XgYTWU95Av1HF5BUWwxS8cGzk8nvpuet6Gna2lvbTxpi2G6mdRw2R_2TdJpQuo_9b9-MwRltptuHaXnXMHdIBqKRYLPDcgkr1N1zLTyi2vOLsDmTJvDfJbxp70PfpnkkFRH41RxhJDAhgZ3w6NtVWjFsZlS_mik2-1JKsx0_eyUGYM5lwi-rbeaDPIIwna_nReINlVVLEPGuM7SrccHoSi1tur4QrrEq43-ADs8lF78j-3EalirCbOvOkU3bgqljQYcVaIfQpFkQU_1FNaIts122rshhFGtB8WuzIWW2euLrsOZrn2ilZ-4J3sIizO0bxluezjKNUrjIEZpkMbMb-72mGM3Q7DdFiGdPKtKW9MUqrFOMBIf31hgKjXnBKgzHsiLZ44s9Xb25_i9CDOeblnVeyTMPs6G904XoXEi6DHid_sbyPHk2lGAfdNYPi0Wmd5R9euZxRj56PmZM_hl6B_KHBJ65Wh-R1pvU_16DcuwfAvir787EtqMjBeJMLEcZOAnQ27JrVjFp36MqFnzCQQ_IbCV1BaWu-uu-nRHzgzNBmGCp3zqSrOZEdBKebARhyxHZq4MuFXRiKqGEMl_aZDV_Um_mEg976Ia8muaGFcwJ072vikmc35y0EfDFsSo=w1279-h959-no" width=400/>
 
 _Image 1: Koda, Iteration 0_
 
 ## documentation
+
+### Setup/Installation
++ Dependencies: https://github.com/olinrobotics/state_controller.git
 
 ### How to Run Koda
 

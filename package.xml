@@ -29,14 +29,16 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>ackermann_msgs</build_depend>
-  <build_depend>gravl</build_depend>
   <build_depend>rospy</build_depend>
   <build_export_depend>ackermann_msgs</build_export_depend>
-  <build_export_depend>gravl</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
+  <depend>state_controller</depend>
+  <depend>tf2_ros</depend>
   <exec_depend>ackermann_msgs</exec_depend>
-  <exec_depend>gravl</exec_depend>
   <exec_depend>rospy</exec_depend>
+  <exec_depend>image_proc</exec_depend>
+  <exec_depend>raspicam_node</exec_depend>
+  <exec_depend>phidgets_imu</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
