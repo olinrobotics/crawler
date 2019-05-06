@@ -3,7 +3,7 @@
   <arg name="node_namespace" default="apriltags2_ros_continuous_node" />
   <arg name="camera_name" default="/raspicam_node" />
   <arg name="camera_frame" default="skycam" />
-  <arg name="image_topic" default="image_rect" />
+  <arg name="image_topic" default="image" />
 
   <!-- Set parameters -->
   <rosparam command="load" file="$(find crawler)/config/aprilsettings.yaml" ns="$(arg node_namespace)" />

@@ -1,8 +1,8 @@
 <launch>
-  <include file="$(find crawler)/launch/rpi.launch"/>
+  <include file="$(find crawler)/launch/skycam.launch"/>
   <include file="$(find crawler)/launch/skycam_localization.launch"/>
-  <node pkg="crawler" type="tf_to_odom" name="tf_to_odom"/>
-  <!-- <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true"> -->
-  <!--   <rosparam command="load" file="$(find crawler)/config/ekfparams.yaml" /> -->
-  <!-- </node> -->
+  <include file="$(find phidgets_imu)/launch/imu.launch"/>
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
+    <rosparam command="load" file="$(find crawler)/config/ekfparams.yaml" />
+  </node>
 </launch>
