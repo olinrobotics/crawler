@@ -2,6 +2,7 @@
   <include file="$(find crawler)/launch/skycam.launch"/>
   <include file="$(find crawler)/launch/skycam_localization.launch"/>
   <include file="$(find phidgets_imu)/launch/imu.launch"/>
+  <include file="$(find indoor_localization)/bringup.launch"/>
   <node pkg="robot_localization" type="ekf_localization_node" name="ekf_se" clear_params="true">
     <rosparam command="load" file="$(find crawler)/config/ekfparams.yaml" />
   </node>
