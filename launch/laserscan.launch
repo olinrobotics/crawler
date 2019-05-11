@@ -4,7 +4,7 @@
   </node>
 
   <node type="laser_scan_assembler" pkg="laser_assembler" name="pc_assembler">
-    <param name="max_scans" type="int" value="4096" />
+    <param name="max_scans" type="int" value="65536" />
     <param name="fixed_frame" type="string" value="odom" />
   </node>
 
