@@ -12,12 +12,9 @@
 // Servos
 Servo steerServo;
 Servo velServo;
-<<<<<<< Updated upstream
-=======
 Servo pitchServo;
 Servo pitchServo2;
 Servo zServo;
->>>>>>> Stashed changes
 
 // Global Variables
 int velCmd = VEL_CMD_STOP;
