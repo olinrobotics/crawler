@@ -18,11 +18,17 @@
 const byte ESTOP_BUTTON_PIN = 3;
 const byte STEER_SERVO_PIN = 5;
 const byte VEL_SERVO_PIN   = 6;
+<<<<<<< Updated upstream
+=======
+const byte Z_SERVO_PIN     = 9;
+const byte PITCH_SERVO_PIN = 10;
+const byte PITCH_SERVO2_PIN = 11;
+>>>>>>> Stashed changes
 const byte ESTOP_LED_PIN   = 13;
 
 // General Constants
 #define DEBUG True
-#define WATCHDOG_TIMEOUT 250        // milliseconds
+#define WATCHDOG_TIMEOUT 500        // milliseconds
 #define LED_BLINK_DELAY 750         // milliseconds
 #define BAUD_RATE 9600              // Hz
 #define DEBOUNCE_DELAY 500          // milliseconds
@@ -43,4 +49,26 @@ const int STEER_MSG_LEFT = 45;      // Ackermann msg min steering angle
 const int STEER_MSG_CENTER = 0;     // Ackermann msg center steering angle
 const int STEER_MSG_RIGHT = -45;       // Ackermann msg max steering angle
 
+<<<<<<< Updated upstream
+=======
+// Blade Z Motor Ranges
+const int Z_CMD_TOP = 60;           // Servo cmd for highest blade height
+const int Z_CMD_CENTER = 105;       // . . .         middle . . .
+const int Z_CMD_BOTTOM = 150;       // . . .         lowest . . .
+const int Z_MSG_TOP = 100;          // Pose msg highest blade height
+const int Z_MSG_CENTER = 50;        // . . .    middle . . .
+const int Z_MSG_BOTTOM = 0;         // . . .    lowest . . .
+
+// Blade Pitch Motor Ranges
+const int PITCH_CMD_UP = 60;         // Servo cmd for maximum upward   blade pitch
+const int PITCH_CMD_CENTER = 30;    // . . .         central          . . .
+const int PITCH_CMD_DOWN = 0;     // . . .         maximum downward . . .
+const int PITCH_MSG_UP = 100;         // Pose msg maximum upward   blade pitch
+const int PITCH_MSG_CENTER = 50;    // . . .    central          . . .
+const int PITCH_MSG_DOWN = 0;     // . . .    maximum downward . . .
+
+// Blade Z Motor PWM Tuning
+const int Z_PWM_MIN = 1000;
+const int Z_PWM_MAX = 2450;
+>>>>>>> Stashed changes
 #endif

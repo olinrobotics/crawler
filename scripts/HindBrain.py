@@ -4,6 +4,12 @@ import serial
 import rospy as rp
 import sys
 from ackermann_msgs.msg import AckermannDrive
+<<<<<<< Updated upstream
+=======
+from geometry_msgs.msg import Pose
+from std_msgs.msg import Bool
+from helper_functions import *
+>>>>>>> Stashed changes
 
 # Hello
 class UnoNode():
@@ -14,6 +20,7 @@ class UnoNode():
         self.ack_sub = rp.Subscriber('/cmd_vel', AckermannDrive, self.ackermann_cb)
         self.rate = rp.Rate(5)
         self.prev_command = ''
+        self.name = 'hb'
 
         # Setup serial port
         try:
@@ -25,7 +32,33 @@ class UnoNode():
 
     def ackermann_cb(self, msg):
 
+<<<<<<< Updated upstream
         command = "[" + str(msg.speed) + "|" + str(msg.steering_angle) + "]"
+=======
+        Converts estop msg into serial msg, sends if msg is different than
+        last msg sent
+
+        :param[in] msg: boolean msg provided by ROS subscriber
+        :param[out] self.prev_command: Updates previous command attribute
+        """
+        command = "!e:" + str(msg.data) + ":"
+        if (command != self.prev_command):
+            self.send(command)
+            self.prev_command = command
+
+    def pose_cb(self, msg):
+        """callback function for pose messages
+
+        Converts pose msg into serial msg, sends if msg is different than
+        last msg sent
+
+        :param[in] msg: pose msg provided by ROS subscriber
+        :param[out] self.prev_command: Updates previous command attribute
+        """
+        z_cmd = cmd2msg(msg.position.z, self.z_range, self.msg_range)
+        pitch_cmd = cmd2msg(msg.orientation.y, self.pitch_range, self.msg_range)
+        command = "!b:" + str(int(z_cmd)) + ":" + str(int(pitch_cmd)) + ":\n"
+>>>>>>> Stashed changes
         if (command != self.prev_command):
             print("Trasmitted: " + command)
             self.send(command)
@@ -35,13 +68,26 @@ class UnoNode():
 
         try:
             self.uno_port.write(msg.encode('utf-8'))
+<<<<<<< Updated upstream
+=======
+            rp.loginfo("%s - Sent message: %s", self.name, msg)
+            return True
+>>>>>>> Stashed changes
         except Exception as e:
-            rp.logerr("Lost connectivity with rover")
+            rp.logerr("%s - lost connectivity with rover", self.name)
             rp.logerr(e)
+<<<<<<< Updated upstream
+=======
+            return False
+>>>>>>> Stashed changes
 
     def run(self):
         while not rp.is_shutdown():
+<<<<<<< Updated upstream
             self.send('.') # Satisfy watchdog
+=======
+            #self.send('!w') # Satisfy watchdog
+>>>>>>> Stashed changes
             self.rate.sleep()
 
 if __name__ == '__main__':
