@@ -16,7 +16,9 @@ include_directories(
 )
 
 add_executable(Teleop src/Teleop/Teleop.cpp)
+add_executable(periodic_snapshotter src/periodic_snapshotter)
 add_executable(tf_to_odom src/publish_tf_as_odom)
 
 target_link_libraries(Teleop ${catkin_LIBRARIES})
 target_link_libraries(tf_to_odom ${catkin_LIBRARIES})
+target_link_libraries(periodic_snapshotter ${catkin_LIBRARIES})

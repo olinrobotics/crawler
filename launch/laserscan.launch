@@ -1,0 +1,12 @@
+<launch>
+  <node name="hokuyo" pkg="urg_node" type="urg_node">
+    <param name="ip_address" value="192.168.0.4" />
+  </node>
+
+  <node type="laser_scan_assembler" pkg="laser_assembler" name="pc_assembler">
+    <param name="max_scans" type="int" value="65536" />
+    <param name="fixed_frame" type="string" value="odom" />
+  </node>
+
+  <node type="periodic_snapshotter" pkg="crawler" name="periodic_snapshotter"/>
+</launch>
