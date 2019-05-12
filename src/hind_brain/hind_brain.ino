@@ -13,6 +13,7 @@
 Servo steerServo;
 Servo velServo;
 Servo pitchServo;
+Servo pitchServo2;
 Servo zServo;
 
 // Global Variables
@@ -40,10 +41,14 @@ void setup() {
   steerServo.attach(STEER_SERVO_PIN);
   velServo.attach(VEL_SERVO_PIN);
   pitchServo.attach(PITCH_SERVO_PIN);
+  pitchServo2.attach(PITCH_SERVO2_PIN);
   zServo.attach(Z_SERVO_PIN, Z_PWM_MIN, Z_PWM_MAX);
   pinMode(ESTOP_LED_PIN, OUTPUT);
   pinMode(ESTOP_BUTTON_PIN, OUTPUT);
   attachInterrupt(digitalPinToInterrupt(ESTOP_BUTTON_PIN), onEStopPress, RISING);
+
+  // Set blade to init pose
+  updateBladeState(zCmd, pitchCmd);
 
   // Initialize timers
   watchdogTimer = millis();
@@ -143,7 +148,7 @@ int parseSerialMsg() {
 	          pitchCmd = msgToCmd(atof(p_char),
                                 PITCH_MSG_DOWN,PITCH_MSG_CENTER,PITCH_MSG_UP,
                                 PITCH_CMD_DOWN,PITCH_CMD_CENTER,PITCH_CMD_UP);
-            break;
+            Serial.println(pitchCmd);            break;
           }
           case 'e': case 'E': {// Estop msg
             const char* e_char = strtok(NULL, "\n");  // Read only val
@@ -184,6 +189,7 @@ void updateBladeState(int z_cmd, int pitch_cmd) {
 
   zServo.write(z_cmd);
   pitchServo.write(pitch_cmd);
+  pitchServo2.write(PITCH_CMD_UP - pitch_cmd);
 
 }
 
@@ -245,7 +251,7 @@ float msgToCmd(float m_in, float m_low, float m_mid, float m_hi, float c_low, fl
     else if (c_out < c_low) c_out = c_low;
   } else if (c_low > c_hi) {
     if      (c_out > c_low) c_out = c_low;
-    else if (c_out < c_hi) c_out = c_hi;
+    else if (c_out < c_hi)  c_out = c_hi;
   }
 
   return c_out;
@@ -266,6 +272,14 @@ float cmdToMsg(float c_in, float c_low, float c_mid, float c_hi, float m_low, fl
     else m_out = m_mid;
   }
 
+  // Threshold outgoing msg
+  if (m_low < m_hi) {
+    if      (m_out < m_low) m_out = m_low;
+    else if (m_out > m_hi)  m_out = m_hi;
+  } else if (m_low > m_hi) {
+    if      (m_out > m_low) m_out = m_low;
+    else if (m_out < m_hi)  m_out = m_hi;
+  }
   return m_out;
 }
 

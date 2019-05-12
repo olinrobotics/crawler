@@ -20,11 +20,12 @@ const byte STEER_SERVO_PIN = 5;
 const byte VEL_SERVO_PIN   = 6;
 const byte Z_SERVO_PIN     = 9;
 const byte PITCH_SERVO_PIN = 10;
+const byte PITCH_SERVO2_PIN = 11;
 const byte ESTOP_LED_PIN   = 13;
 
 // General Constants
 #define DEBUG True
-#define WATCHDOG_TIMEOUT 250        // milliseconds
+#define WATCHDOG_TIMEOUT 500        // milliseconds
 #define LED_BLINK_DELAY 750         // milliseconds
 #define BAUD_RATE 9600              // Hz
 #define DEBOUNCE_DELAY 500          // milliseconds
@@ -54,12 +55,12 @@ const int Z_MSG_CENTER = 50;        // . . .    middle . . .
 const int Z_MSG_BOTTOM = 0;         // . . .    lowest . . .
 
 // Blade Pitch Motor Ranges
-const int PITCH_CMD_UP = 0;         // Servo cmd for maximum upward   blade pitch
-const int PITCH_CMD_CENTER = 90;    // . . .         central          . . .
-const int PITCH_CMD_DOWN = 180;     // . . .         maximum downward . . .
-const int PITCH_MSG_UP = 0;         // Pose msg maximum upward   blade pitch
+const int PITCH_CMD_UP = 60;         // Servo cmd for maximum upward   blade pitch
+const int PITCH_CMD_CENTER = 30;    // . . .         central          . . .
+const int PITCH_CMD_DOWN = 0;     // . . .         maximum downward . . .
+const int PITCH_MSG_UP = 100;         // Pose msg maximum upward   blade pitch
 const int PITCH_MSG_CENTER = 50;    // . . .    central          . . .
-const int PITCH_MSG_DOWN = 100;     // . . .    maximum downward . . .
+const int PITCH_MSG_DOWN = 0;     // . . .    maximum downward . . .
 
 // Blade Z Motor PWM Tuning
 const int Z_PWM_MIN = 1000;

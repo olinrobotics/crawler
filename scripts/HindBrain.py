@@ -4,6 +4,7 @@ import serial
 import rospy as rp
 import sys
 from ackermann_msgs.msg import AckermannDrive
+from geometry_msgs.msg import Pose
 from std_msgs.msg import Bool
 from helper_functions import *
 
@@ -21,6 +22,7 @@ class UnoNode():
         self.pose_sub = rp.Subscriber('/cmd_hitch', Pose, self.pose_cb)
         self.rate = rp.Rate(5)
         self.prev_command = ''
+        self.name = 'hb'
 
         self.vel_range = (-1,0,1)
         self.steer_range = (-45,0,45)
@@ -77,8 +79,8 @@ class UnoNode():
         :param[out] self.prev_command: Updates previous command attribute
         """
         z_cmd = cmd2msg(msg.position.z, self.z_range, self.msg_range)
-        pitch_cmd = cmd2msg(msg.orientation.x, self.pitch_range, self.msg_range)
-        command = "!b:" + str(int(z_cmd)) + ":" + str(int(pitch_cmd)) + ":"
+        pitch_cmd = cmd2msg(msg.orientation.y, self.pitch_range, self.msg_range)
+        command = "!b:" + str(int(z_cmd)) + ":" + str(int(pitch_cmd)) + ":\n"
         if (command != self.prev_command):
             self.send(command)
             self.prev_command = command
@@ -93,11 +95,12 @@ class UnoNode():
         """
         try:
             self.uno_port.write(msg.encode('utf-8'))
-            return true
+            rp.loginfo("%s - Sent message: %s", self.name, msg)
+            return True
         except Exception as e:
-            rp.logerr("Lost connectivity with rover")
+            rp.logerr("%s - lost connectivity with rover", self.name)
             rp.logerr(e)
-            return false
+            return False
 
     def run(self):
         """runs node mainloop
@@ -105,7 +108,7 @@ class UnoNode():
         sends watchdog msg at rate attr. frequency if ros is ok
         """
         while not rp.is_shutdown():
-            self.send('!w') # Satisfy watchdog
+            #self.send('!w') # Satisfy watchdog
             self.rate.sleep()
 
 if __name__ == '__main__':
