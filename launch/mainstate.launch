@@ -1,7 +1,7 @@
 <launch>
 
 <rosparam command="load" file="$(find crawler)/config/crawler_behaviors.yaml" />
-<node pkg="state_controller" type="MainState" name="mainstate" output="screen"/>
+<include file="$(find state_controller)/launch/mainstate.launch" />
 <node name="convert_to_ackermann" pkg="crawler" type="ConvertToAckermann.py"/>
 
 </launch>

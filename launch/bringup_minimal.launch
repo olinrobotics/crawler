@@ -1,9 +1,9 @@
 <launch>
   <arg name='port' default='/dev/ttyUSB0'/>
 
-  <include file="$(find crawler)/launch/teleop.launch"/>
   <include file="$(find crawler)/launch/mainstate.launch"/>
 
+  <node pkg="crawler" type="ConvertToAckermann.py" name="twist_to_ackermann"/>
   <node pkg="crawler" type="HindBrain.py" name="hind_brain" output="screen">
     <param name="port" value="$(arg port)" />
   </node>
