@@ -51,7 +51,7 @@ class UnoNode():
 
         speed_cmd = cmd2msg(msg.speed, self.vel_range, self.msg_range)
         steer_cmd = cmd2msg(msg.steering_angle, self.steer_range, self.msg_range)
-        command = "!a:" + str(int(speed_cmd)) + ":" + str(int(steer_cmd)) + ":\n"
+        command = "!a:" + str(int(steer_cmd)) + ":" + str(int(speed_cmd)) + ":\n"
         if (command != self.prev_ack_cmd):
             self.send(command)
             self.prev_ack_cmd = command

@@ -42,9 +42,9 @@ const int VEL_MSG_MAX  = 100;       // Ackermann msg max speed
 const int STEER_CMD_LEFT   = 160;   // Servo library cmd for max left turn
 const int STEER_CMD_CENTER = 85;    // Servo library cmd for straight
 const int STEER_CMD_RIGHT  = 35;    // Servo library cmd for max right turn
-const int STEER_MSG_LEFT   = 0;     // Ackermann msg min steering angle
+const int STEER_MSG_LEFT   = 100;     // Ackermann msg min steering angle
 const int STEER_MSG_CENTER = 50;    // Ackermann msg center steering angle
-const int STEER_MSG_RIGHT  = 100;   // Ackermann msg max steering angle
+const int STEER_MSG_RIGHT  = 0;   // Ackermann msg max steering angle
 
 // Blade Z Motor Ranges
 const int Z_CMD_TOP = 60;           // Servo cmd for highest blade height
