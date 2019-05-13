@@ -28,6 +28,7 @@ const byte ESTOP_LED_PIN   = 13;
 #define WATCHDOG_TIMEOUT 500        // milliseconds
 #define LED_BLINK_DELAY 500         // milliseconds
 #define BAUD_RATE 9600              // Hz
+#define SERIAL_TIMEOUT 50           // milliseconds
 #define DEBOUNCE_DELAY 500          // milliseconds
 
 // Velocity Motor Ranges

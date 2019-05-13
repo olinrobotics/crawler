@@ -49,6 +49,7 @@ void setup() {
 
   // Wait for serial connection
   Serial.begin(BAUD_RATE);
+  Serial.setTimeout(SERIAL_TIMEOUT);
   while (!Serial){;}
 
   // Setup pins
@@ -110,6 +111,7 @@ int parseSerialMsg() {
     ('e'), watchdog ('w'), hitch ('b'), or loop timer ('l'). Based on subsequent values, updates
     respective global state variables ('!') or sends response msg with queried
     information ('?')
+    Source: https://forum.arduino.cc/index.php?topic=396450.0
 
     :param[out] serial_buffer: Uses serial_buffer to store read characters
     :param[out] steerCmd: Updates steering command value if receiving proper command
