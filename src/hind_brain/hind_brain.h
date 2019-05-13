@@ -26,7 +26,7 @@ const byte ESTOP_LED_PIN   = 13;
 // General Constants
 #define DEBUG True
 #define WATCHDOG_TIMEOUT 500        // milliseconds
-#define LED_BLINK_DELAY 750         // milliseconds
+#define LED_BLINK_DELAY 500         // milliseconds
 #define BAUD_RATE 9600              // Hz
 #define DEBOUNCE_DELAY 500          // milliseconds
 

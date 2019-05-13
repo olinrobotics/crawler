@@ -22,16 +22,30 @@ float steerCmd = STEER_CMD_CENTER;
 float pitchCmd = PITCH_CMD_CENTER;
 float zCmd     = Z_CMD_TOP;
 int incomingByte = 0;
+char serial_buffer[10]; // Buffer from serial
+int loopTime;           // Time per loop() cycle
+
+// Timers
+unsigned long loopTimer;
 unsigned long watchdogTimer;
 unsigned long ledTimer;
 unsigned long buttonTimer;
-char serial_buffer[10];          // Buffer from serial
 
 // States
 boolean isEStopped = false;
 boolean isLEDOn = false;
 
 void setup() {
+  /** Sets up platform to run
+
+  Starts serial connection, attaches motors, sensors, indicators to pins, sets
+  hitch to neutral position, updates all timers
+
+  :param[out] watchdogTimer: updates timer at end of setup
+  :param[out] ledTimer:      . . .
+  :param[out] loopTimer:     . . .
+  :param[out] buttonTimer:   . . .
+  **/
 
   // Wait for serial connection
   Serial.begin(BAUD_RATE);
@@ -40,9 +54,6 @@ void setup() {
   // Setup pins
   steerServo.attach(STEER_SERVO_PIN);
   velServo.attach(VEL_SERVO_PIN);
-  pitchServo.attach(PITCH_SERVO_PIN);
-  pitchServo2.attach(PITCH_SERVO2_PIN);
-  zServo.attach(Z_SERVO_PIN, Z_PWM_MIN, Z_PWM_MAX);
   pitchServo.attach(PITCH_SERVO_PIN);
   pitchServo2.attach(PITCH_SERVO2_PIN);
   zServo.attach(Z_SERVO_PIN, Z_PWM_MIN, Z_PWM_MAX);
@@ -56,10 +67,21 @@ void setup() {
   // Initialize timers
   watchdogTimer = millis();
   ledTimer = millis();
+  loopTimer = millis();
   buttonTimer = millis();
 }
 
 void loop() {
+  /** Main update loop of platform
+
+    Updates the watchdog, checks for serial messages, sends motor commands if not
+    estopped, updates led state, and logs it's loop time.
+
+    :param[out] loopTimer: updates loopTimer at beginning of loop
+    :param[out] loopTime: updats loopTime at end of loop
+  **/
+
+  loopTimer = millis(); // Start loop timer
 
   updateWatchdog();
 
@@ -76,10 +98,28 @@ void loop() {
   }
 
   updateLED();
+
+  loopTime = millis() - loopTimer;
 }
 
 int parseSerialMsg() {
-  // Reads msg from serial buffer - based on format, calls necessary functions
+  /** Reads serial message and responds accordingly
+
+    Reads msg off serial port - must end with '\n', be less than 10 char long.
+    Sorts into command ('!') or query ('?'), and then into steering ('a'), estop
+    ('e'), watchdog ('w'), hitch ('b'), or loop timer ('l'). Based on subsequent values, updates
+    respective global state variables ('!') or sends response msg with queried
+    information ('?')
+
+    :param[out] serial_buffer: Uses serial_buffer to store read characters
+    :param[out] steerCmd: Updates steering command value if receiving proper command
+    :param[out] velCmd:   . . .   velocity . . .
+    :param[out] steerCmd: . . .   steering . . .
+    :param[out] zCmd:     . . .   hitch height . . .
+    :param[out] watchdogTimer: Resets timer if called
+    :return int: successful read bool value
+
+  **/
 
   // Store msg in serial_buf, up to newline char
   serial_buffer[0] = '\0';
@@ -119,6 +159,10 @@ int parseSerialMsg() {
               message += String("e:");
               message += String(isEStopped);
             }
+            case 'l': case 'L': {// Loop timer query
+              message += String("l");
+              message += String(loopTime);
+            }
         }
 
         // Convert msg to char array and send over serial
@@ -151,7 +195,7 @@ int parseSerialMsg() {
 	          pitchCmd = msgToCmd(atof(p_char),
                                 PITCH_MSG_DOWN,PITCH_MSG_CENTER,PITCH_MSG_UP,
                                 PITCH_CMD_DOWN,PITCH_CMD_CENTER,PITCH_CMD_UP);
-            Serial.println(pitchCmd);            break;
+            break;
           }
           case 'e': case 'E': {// Estop msg
             const char* e_char = strtok(NULL, "\n");  // Read only val
@@ -160,7 +204,7 @@ int parseSerialMsg() {
             break;
           }
           case 'w': case 'W': {// Watchdog msg
-          watchdogTimer = millis();
+            watchdogTimer = millis();
           }
         }
       }
@@ -170,13 +214,12 @@ int parseSerialMsg() {
 }
 
 void updateWatchdog() {
-  // estops if watchdog has timed out
+  /** estops if watchdog timeout
 
-  if(millis() - watchdogTimer >= WATCHDOG_TIMEOUT) {
-    if(!isEStopped) {
-      eStop();
-    }
-  }
+    Compares watchdog timer to timeout value, and estops if past the threshold.
+  **/
+
+  if(millis() - watchdogTimer >= WATCHDOG_TIMEOUT && !isEStopped) eStop();
 }
 
 void updateState(int vel_cmd, int steer_cmd) {
@@ -196,7 +239,7 @@ void updateBladeState(int z_cmd, int pitch_cmd) {
 }
 
 void updateLED() {
-  // Updates LED State
+  // Updates LED state
 
   if (isEStopped) {
     digitalWrite(ESTOP_LED_PIN, HIGH);
@@ -205,8 +248,8 @@ void updateLED() {
     if (millis() - ledTimer > LED_BLINK_DELAY) {
 
       // Switch state
-      if (isLEDOn) {digitalWrite(ESTOP_LED_PIN, LOW);}
-      else {digitalWrite(ESTOP_LED_PIN, HIGH);}
+      if (isLEDOn) digitalWrite(ESTOP_LED_PIN, LOW);
+      else digitalWrite(ESTOP_LED_PIN, HIGH);
 
       isLEDOn = !isLEDOn;
       ledTimer = millis();
@@ -217,23 +260,27 @@ void updateLED() {
 void eStop() {
   // Estops vehicle
 
+  Serial.write(isEStopped);
   isEStopped = true;
   velCmd = VEL_CMD_STOP;
   updateState(velCmd, steerCmd);
+  Serial.write("~e:1:\n");
+  Serial.flush();
 }
 
 void eStart() {
   // Disactivates isEStopped state
 
   isEStopped = false;
+  Serial.write("~e:0:\n");
+  Serial.flush();
 }
 
 void onEStopPress() {
   // Toggles estopped state after debouncing
   if (millis() - buttonTimer >= DEBOUNCE_DELAY) {
-    isEStopped = !isEStopped;
-    if(isEStopped) { eStop();}
-    else {eStart();}
+    if (!isEStopped) eStop();
+    else             eStart();
     buttonTimer = millis();
   }
 }
