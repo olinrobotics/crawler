@@ -59,7 +59,3 @@ int main(int argc, char **argv) {
   HitchOdom hitch;
   hitch.spin();
 }
-
-
-
-//   /gps/odom
