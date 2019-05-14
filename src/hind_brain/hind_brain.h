@@ -24,12 +24,14 @@ const byte PITCH_SERVO2_PIN = 11;
 const byte ESTOP_LED_PIN   = 13;
 
 // General Constants
-#define DEBUG True
 #define WATCHDOG_TIMEOUT 500        // milliseconds
 #define LED_BLINK_DELAY 500         // milliseconds
+#define DEBOUNCE_DELAY 250          // milliseconds
+
+// Serial Constants
 #define BAUD_RATE 9600              // Hz
 #define SERIAL_TIMEOUT 50           // milliseconds
-#define DEBOUNCE_DELAY 500          // milliseconds
+#define SERIAL_BUFFER_LENGTH 10     // characters
 
 // Velocity Motor Ranges
 const int VEL_CMD_MIN  = 60;        // ESC cmd for min speed

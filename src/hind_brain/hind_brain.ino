@@ -22,7 +22,10 @@ float steerCmd = STEER_CMD_CENTER;
 float pitchCmd = PITCH_CMD_CENTER;
 float zCmd     = Z_CMD_TOP;
 int incomingByte = 0;
-char serial_buffer[10]; // Buffer from serial
+
+// Serial Reading Variables
+bool newMsg = false;    // Flag for new msg
+char rawMsg[SERIAL_BUFFER_LENGTH];       // Storage for new msg
 int loopTime;           // Time per loop() cycle
 
 // Timers
@@ -89,7 +92,8 @@ void loop() {
   // Parse msg if data on serial port
   if (Serial.available() > 0) {
     watchdogTimer = millis();
-    parseSerialMsg();
+    readSerialMsg();
+    if (newMsg) parseSerialMsg();
   }
 
   // Update motor states if running
@@ -103,116 +107,151 @@ void loop() {
   loopTime = millis() - loopTimer;
 }
 
+void readSerialMsg() {
+  /** Read msg from serial port into global var
+
+  Function replaces & augments Serial.readBytesUntil() to prevent blocking of
+  program. Reads from start msg char ('\s') to end msg char ('\n'), stores msg
+  in msg_raw char array if the mesage fits, otherwise dumps the message. Flips
+  the newMsg flag if msg successfully stored.
+  Source: https://forum.arduino.cc/index.php?topic=396450.0
+
+  :param[out] newMsg: flips newMsg flag if successfully reads a msg
+  :param[out] rawMsg: populates rawMsg[] with read chars
+  **/
+
+  static boolean readingMsg = false;
+  static byte index = 0;
+  char startChar = '\s';
+  char   endChar = '\n';
+  char rc;
+
+  // info on serial port and no message waiting for parsing
+  while (Serial.available() > 0 && newMsg == false) {
+    rc = Serial.read();
+
+    if (readingMsg) { // Deal with msg valid char
+      if (rc != endChar) { // Save char to buffer
+        rawMsg[index] = rc;
+        index++;
+        if (index >= SERIAL_BUFFER_LENGTH) index = SERIAL_BUFFER_LENGTH - 1; // Overwrite last char if overflow
+      } else { // Finish writing buffer and flip flag
+        rawMsg[index] = '\0';
+        readingMsg = false;
+        index = 0;
+        newMsg = true;
+      }
+    }
+
+    else if (rc == startChar) readingMsg = true;
+  }
+
+}
+
 int parseSerialMsg() {
   /** Reads serial message and responds accordingly
 
-    Reads msg off serial port - must end with '\n', be less than 10 char long.
+    Reads command from newMsg
     Sorts into command ('!') or query ('?'), and then into steering ('a'), estop
     ('e'), watchdog ('w'), hitch ('b'), or loop timer ('l'). Based on subsequent values, updates
     respective global state variables ('!') or sends response msg with queried
     information ('?')
-    Source: https://forum.arduino.cc/index.php?topic=396450.0
 
-    :param[out] serial_buffer: Uses serial_buffer to store read characters
     :param[out] steerCmd: Updates steering command value if receiving proper command
     :param[out] velCmd:   . . .   velocity . . .
     :param[out] steerCmd: . . .   steering . . .
     :param[out] zCmd:     . . .   hitch height . . .
     :param[out] watchdogTimer: Resets timer if called
     :return int: successful read bool value
-
   **/
 
-  // Store msg in serial_buf, up to newline char
-  serial_buffer[0] = '\0';
-  Serial.readBytesUntil('\n', serial_buffer, 10);
+  char tempMsg[SERIAL_BUFFER_LENGTH]; // Buffer from serial
+  strcpy(tempMsg, rawMsg); // temporary copy is necessary to protect original data
+                           // because strtok() replaces spacers with \0
 
   // If ser_buf successfully overwritten, parse msg
-  if (serial_buffer[0] != '\0') {
-
-    const char* info = strtok(serial_buffer, ":"); // Remove info part of msg from strtok
-    switch(serial_buffer[0]) {    // Check 1st char for command type
-      case '?': { // Query cmd
-        String message = "~";
-        switch(serial_buffer[1]) {  // Check 2nd char for msg type
-            case 'a': case 'A': {// Ackermann msg
-              message += String("a:");
-              message += String(int(cmdToMsg(steerCmd,
-                                             STEER_CMD_LEFT,STEER_CMD_CENTER,STEER_CMD_RIGHT,
-                                             STEER_MSG_LEFT,STEER_MSG_CENTER,STEER_MSG_RIGHT)));
-              message += ":";
-              message += String(int(cmdToMsg(velCmd,
-                                             VEL_CMD_MIN,VEL_CMD_STOP,VEL_CMD_MAX,
-                                             VEL_MSG_MIN,VEL_MSG_STOP,VEL_MSG_MAX)));
-              break;
-            }
-            case 'b': case 'B': {// Blade msg
-              message += String("b:");
-              message += String(int(cmdToMsg(zCmd,
-                                             Z_CMD_BOTTOM,Z_CMD_CENTER,Z_CMD_TOP,
-                                             Z_MSG_BOTTOM,Z_MSG_CENTER,Z_MSG_TOP)));
-              message += ":";
-              message += String(int(cmdToMsg(pitchCmd,
-                                             PITCH_CMD_DOWN,PITCH_CMD_CENTER,PITCH_CMD_UP,
-                                             PITCH_MSG_DOWN,PITCH_MSG_CENTER,PITCH_MSG_UP)));
-              break;
-            }
-            case 'e': case 'E': {// Estop msg
-              message += String("e:");
-              message += String(isEStopped);
-            }
-            case 'l': case 'L': {// Loop timer query
-              message += String("l");
-              message += String(loopTime);
-            }
-        }
-
-        // Convert msg to char array and send over serial
-        char result[message.length()];
-        message.toCharArray(result, message.length()+3);
-        Serial.write(result, sizeof(result));
-        Serial.write("\n");
-        Serial.flush();
-        break;
-      }
-      case '!': {// Command cmd
-        switch(serial_buffer[1]) {
+  const char* info = strtok(tempMsg, ":"); // Remove info part of msg from strtok
+  switch(tempMsg[0]) {    // Check 1st char for command type
+    case '?': { // Query cmd
+      String message = "~";
+      switch(tempMsg[1]) {  // Check 2nd char for msg type
           case 'a': case 'A': {// Ackermann msg
-            const char* s_char = strtok(NULL, ":"); // Read steer
-            const char* v_char = strtok(NULL, ":");// Read vel
-            steerCmd = msgToCmd(atof(s_char),
-                                STEER_MSG_LEFT,STEER_MSG_CENTER,STEER_MSG_RIGHT,
-                                STEER_CMD_LEFT,STEER_CMD_CENTER,STEER_CMD_RIGHT);
-            velCmd = msgToCmd(atof(v_char),
-                              VEL_MSG_MIN,VEL_MSG_STOP,VEL_MSG_MAX,
-                              VEL_CMD_MIN,VEL_CMD_STOP,VEL_CMD_MAX);
+            message += String("a:");
+            message += String(int(cmdToMsg(steerCmd,
+                                           STEER_CMD_LEFT,STEER_CMD_CENTER,STEER_CMD_RIGHT,
+                                           STEER_MSG_LEFT,STEER_MSG_CENTER,STEER_MSG_RIGHT)));
+            message += ":";
+            message += String(int(cmdToMsg(velCmd,
+                                           VEL_CMD_MIN,VEL_CMD_STOP,VEL_CMD_MAX,
+                                           VEL_MSG_MIN,VEL_MSG_STOP,VEL_MSG_MAX)));
             break;
           }
           case 'b': case 'B': {// Blade msg
-            const char* z_char = strtok(NULL, ":"); // Read z
-            const char* p_char = strtok(NULL, ":"); // Read pitch
-            zCmd = msgToCmd(atof(z_char),
-                            Z_MSG_BOTTOM,Z_MSG_CENTER,Z_MSG_TOP,
-                            Z_CMD_BOTTOM,Z_CMD_CENTER,Z_CMD_TOP);
-	          pitchCmd = msgToCmd(atof(p_char),
-                                PITCH_MSG_DOWN,PITCH_MSG_CENTER,PITCH_MSG_UP,
-                                PITCH_CMD_DOWN,PITCH_CMD_CENTER,PITCH_CMD_UP);
+            message += String("b:");
+            message += String(int(cmdToMsg(zCmd,
+                                           Z_CMD_BOTTOM,Z_CMD_CENTER,Z_CMD_TOP,
+                                           Z_MSG_BOTTOM,Z_MSG_CENTER,Z_MSG_TOP)));
+            message += ":";
+            message += String(int(cmdToMsg(pitchCmd,
+                                           PITCH_CMD_DOWN,PITCH_CMD_CENTER,PITCH_CMD_UP,
+                                           PITCH_MSG_DOWN,PITCH_MSG_CENTER,PITCH_MSG_UP)));
             break;
           }
           case 'e': case 'E': {// Estop msg
-            const char* e_char = strtok(NULL, "\n");  // Read only val
-            if(atoi(e_char)) eStop();
-            else eStart();
-            break;
+            message += String("e:");
+            message += String(isEStopped);
           }
-          case 'w': case 'W': {// Watchdog msg
-            watchdogTimer = millis();
+          case 'l': case 'L': {// Loop timer query
+            message += String("l");
+            message += String(loopTime);
           }
+      }
+
+      // Convert msg to char array and send over serial
+      char result[message.length()];
+      message.toCharArray(result, message.length()+3);
+      Serial.write(result, sizeof(result));
+      Serial.write("\n");
+      Serial.flush();
+      break;
+    }
+    case '!': {// Command cmd
+      switch(tempMsg[1]) {
+        case 'a': case 'A': {// Ackermann msg
+          const char* s_char = strtok(NULL, ":"); // Read steer
+          const char* v_char = strtok(NULL, ":");// Read vel
+          steerCmd = msgToCmd(atof(s_char),
+                              STEER_MSG_LEFT,STEER_MSG_CENTER,STEER_MSG_RIGHT,
+                              STEER_CMD_LEFT,STEER_CMD_CENTER,STEER_CMD_RIGHT);
+          velCmd = msgToCmd(atof(v_char),
+                            VEL_MSG_MIN,VEL_MSG_STOP,VEL_MSG_MAX,
+                            VEL_CMD_MIN,VEL_CMD_STOP,VEL_CMD_MAX);
+          break;
+        }
+        case 'b': case 'B': {// Blade msg
+          const char* z_char = strtok(NULL, ":"); // Read z
+          const char* p_char = strtok(NULL, ":"); // Read pitch
+          zCmd = msgToCmd(atof(z_char),
+                          Z_MSG_BOTTOM,Z_MSG_CENTER,Z_MSG_TOP,
+                          Z_CMD_BOTTOM,Z_CMD_CENTER,Z_CMD_TOP);
+          pitchCmd = msgToCmd(atof(p_char),
+                              PITCH_MSG_DOWN,PITCH_MSG_CENTER,PITCH_MSG_UP,
+                              PITCH_CMD_DOWN,PITCH_CMD_CENTER,PITCH_CMD_UP);
+          break;
+        }
+        case 'e': case 'E': {// Estop msg
+          const char* e_char = strtok(NULL, "\n");  // Read only val
+          if(atoi(e_char)) eStop();
+          else eStart();
+          break;
+        }
+        case 'w': case 'W': {// Watchdog msg
+          watchdogTimer = millis();
         }
       }
-    return 1;
     }
-  } else return 0;
+  return 1;
+  }
 }
 
 void updateWatchdog() {
