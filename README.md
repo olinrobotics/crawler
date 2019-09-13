@@ -23,7 +23,7 @@ Currently, Koda has no onboard computer. The onboard microprocessor must be conn
 
 * Launch files can start their own roscore, but having a separate core ensures that your ROS instances stay connected if any nodes in the launch file crash.
 
-3. Plug in an XBox controller, or another controller compatible with the Teleop node.
+3. Plug in an XBox controller, or another controller compatible with the Teleop node.. Test
 
 4.  In a new terminal, run the basic nodes required for teleoperating Koda with the command `roslaunch crawler bringup_minimal.launch port:=/dev/ttyUSB0`
 
@@ -35,6 +35,14 @@ Currently, Koda has no onboard computer. The onboard microprocessor must be conn
 * If Koda is E-stopped (LED is solid ON), press the EStop button or reset the Arduino onboard.
 
 6. Press the 'A' button on the XBox controller to activate the controls.
+
+### Uploading New Code
+1. Remove the Xbee from Koda
+2. Flip the Serial Select switch on the red sparkfun board under the Xbee from HW_SER to SW_SER
+3. Upload code using the Arduino IDE
+4. Flip the Serial Select switch on the red sparkfun board under the Xbee from SW_SER back to HW_SER
+5. Re-plug in the Xbee
+6. Test code
 
 ### Authors
 
