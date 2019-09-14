@@ -44,6 +44,10 @@ Currently, Koda has no onboard computer. The onboard microprocessor must be conn
 5. Re-plug in the Xbee
 6. Test code
 
+### Troubleshooting
+1. If the Xbee is not working, remove the Xbee and plug the Arduino directly into the computer. Make sure the Serial Select switch is on the SW_SER mode
+2. If you're having trouble uploading code to the Arduino, make sure the Serial Select switch is properly set to SW_SER
+
 ### Authors
 
 This package was built by Connor Novak (20'), Nathan Estill (21'), and Kawin Nikomborirak (21') for the Ground Robotic Autonomous Vehicle Laboratory
